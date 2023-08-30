@@ -12,19 +12,27 @@ foreach ($session in $disconnectedSessions) {
 
 
 
-I apologize for the confusion. You're right, the condition in the `Where-Object` might not work as expected for date comparisons. Here's a revised script that should address the issue:
+I apologize for the confusion. If the `Get-RDUserSession` cmdlet doesn't provide the disconnected status, you might need to adjust your approach. Here's an alternative script that uses `quser` command to retrieve disconnected sessions and then calculates the duration to perform the logoff:
 
 ```powershell
-# Get the current date
-$currentDate = Get-Date
+# Get disconnected sessions using quser
+$disconnectedSessions = quser | ForEach-Object {
+    $sessionInfo = $_ -split '\s+'
+    $username = $sessionInfo[0]
+    $sessionState = $sessionInfo[2]
+    $sessionIdleTime = [TimeSpan]::Parse($sessionInfo[3])
 
-# Get disconnected sessions older than 3 days
-$disconnectedSessions = Get-RDUserSession | Where-Object { $_.State -eq 'Disconnected' -and ($currentDate - $_.LastConnectionTime).TotalDays -gt 3 }
+    if ($sessionState -eq "Disc" -and $sessionIdleTime.TotalDays -gt 3) {
+        $username
+    }
+}
 
-# Delete the sessions
-foreach ($session in $disconnectedSessions) {
-    Invoke-RDUserLogoff -UnifiedSessionID $session.UnifiedSessionID -Force
+# Log off the disconnected sessions
+foreach ($username in $disconnectedSessions) {
+    logoff $username /server:your_server_name_or_ip
 }
 ```
 
-In this version, I'm comparing the difference in `TotalDays` between the current date and the `LastConnectionTime` property of the session to determine if it has been disconnected for more than 3 days. This should work more accurately.
+Replace `"your_server_name_or_ip"` with the actual name or IP address of your server. This script uses the `quser` command to retrieve session information, and then logs off sessions that are both in a "Disc" (Disconnected) state and have been idle for more than 3 days.
+
+Please ensure you run this script with appropriate permissions and test it in a controlled environment before using it in a production setting.
