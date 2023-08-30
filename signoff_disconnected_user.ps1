@@ -1,8 +1,6 @@
-Certainly, if you only want to check the date difference and not the hours and minutes, you can simplify the script as follows:
-
-```powershell
 $queryResult = quser
 $disconnectedUsers = $queryResult | Select-String "Disc"
+###Change the string in case you have Windows installed on different language, exemple change it to Déco for French
 
 $currentDate = Get-Date
 
@@ -19,8 +17,3 @@ foreach ($userLine in $disconnectedUsers) {
         Write-Host "User $sessionId has been logged off."
     }
 }
-```
-
-This script parses the date of the last disconnect from the session information, calculates the days since that date, and if the days disconnected are greater than 1, it logs off the user session.
-
-Please give this version a try, and remember to test it before using it in a production environment.
