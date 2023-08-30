@@ -13,6 +13,7 @@ foreach ($userLine in $disconnectedUsers) {
     $daysDisconnected = ($currentDate - $lastDisconnectDate).Days
 
     if ($daysDisconnected -gt 1) {
+    ### You can change the number 1 with the number of days you want, for exemple change it to 3 to logoff only users that has been disconnected for more than 3 days
         logoff $sessionId
         Write-Host "User $sessionId has been logged off."
     }
