@@ -1,27 +1,26 @@
-I'm glad to hear that the script worked for you! Here's the modified PowerShell script that will log off users who have been disconnected for more than 1 day:
+Certainly, if you only want to check the date difference and not the hours and minutes, you can simplify the script as follows:
 
 ```powershell
 $queryResult = quser
-$disconnectedUsers = $queryResult | Select-String "Déco"
+$disconnectedUsers = $queryResult | Select-String "Disc"
 
 $currentDate = Get-Date
 
 foreach ($userLine in $disconnectedUsers) {
     $sessionId = ($userLine -split '\s+')[2]
-    $idleTime = ($userLine -split '\s+')[4]
+    $idleDate = ($userLine -split '\s+')[5]
 
-    $idleHours = [int]($idleTime -replace "(\d+)\:(\d+)", '$1')
-    $idleMinutes = [int]($idleTime -replace "(\d+)\:(\d+)", '$2')
+    $lastDisconnectDate = [DateTime]::ParseExact($idleDate, 'MM/dd/yyyy', $null)
 
-    $totalIdleTime = ($idleHours * 60) + $idleMinutes
+    $daysDisconnected = ($currentDate - $lastDisconnectDate).Days
 
-    if ($totalIdleTime -gt 1440) {  # 1440 minutes = 1 day
+    if ($daysDisconnected -gt 1) {
         logoff $sessionId
         Write-Host "User $sessionId has been logged off."
     }
 }
 ```
 
-This script calculates the total idle time in minutes, and if it's greater than 1440 minutes (which corresponds to 1 day), it logs off the user and displays a message.
+This script parses the date of the last disconnect from the session information, calculates the days since that date, and if the days disconnected are greater than 1, it logs off the user session.
 
-As always, make sure to test the script in a controlled environment before using it in a production setting.
+Please give this version a try, and remember to test it before using it in a production environment.
