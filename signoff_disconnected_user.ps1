@@ -2,7 +2,7 @@ I'm glad to hear that the script worked for you! Here's the modified PowerShell 
 
 ```powershell
 $queryResult = quser
-$disconnectedUsers = $queryResult | Select-String "Disc"
+$disconnectedUsers = $queryResult | Select-String "Déco"
 
 $currentDate = Get-Date
 
