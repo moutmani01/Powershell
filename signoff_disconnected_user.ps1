@@ -36,3 +36,36 @@ foreach ($username in $disconnectedSessions) {
 Replace `"your_server_name_or_ip"` with the actual name or IP address of your server. This script uses the `quser` command to retrieve session information, and then logs off sessions that are both in a "Disc" (Disconnected) state and have been idle for more than 3 days.
 
 Please ensure you run this script with appropriate permissions and test it in a controlled environment before using it in a production setting.
+
+
+
+
+Certainly, here's a batch script that achieves the same goal using the `query user` command and the `logoff` command:
+
+```batch
+@echo off
+setlocal
+
+for /f "skip=1 tokens=1,3,5" %%A in ('query user') do (
+    set "username=%%A"
+    set "sessionState=%%B"
+    set "sessionIdleTime=%%C"
+    if "%%B"=="Disc" (
+        for /f "tokens=1-3 delims=:." %%D in ("%%C") do (
+            set /a "idleHours=%%D"
+            set /a "idleMinutes=%%E"
+            set /a "idleSeconds=%%F"
+            set /a "totalIdleTime=(idleHours*60*60) + (idleMinutes*60) + idleSeconds"
+            if !totalIdleTime! gtr 259200 (
+                logoff %%A
+            )
+        )
+    )
+)
+
+endlocal
+```
+
+This batch script iterates through the output of the `query user` command, extracts the necessary information about the session state and idle time, and then calculates the total idle time in seconds. If the session is in a "Disc" (Disconnected) state and has been idle for more than 3 days (259,200 seconds), it logs off the user session using the `logoff` command.
+
+Please remember to test this script in a controlled environment before using it on your production system.
